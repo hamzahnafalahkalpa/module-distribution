@@ -1,0 +1,29 @@
+{
+    "name": "zahzah/module-distribution",
+    "autoload": {
+        "psr-4": {
+            "Zahzah\\ModuleDistribution\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "hamzah",
+            "email": "hamzahnuralfalah@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Zahzah\\ModuleDistribution\\ModuleDistributionServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "gii/module-item": "1.x",
+        "zahzah/module-transaction": "1.x",
+        "zahzah/module-warehouse": "1.x",
+        "zahzah/laravel-support": "1.x"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": false
+}
