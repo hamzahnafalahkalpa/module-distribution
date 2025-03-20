@@ -1,9 +1,9 @@
 <?php
 
-namespace Zahzah\ModuleDistribution\Resources\Distribution;
+namespace Hanafalah\ModuleDistribution\Resources\Distribution;
 
-use Zahzah\LaravelSupport\Resources\ApiResource;
-use Zahzah\ModulePeople\Resources\People\ViewPeople;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\ModulePeople\Resources\People\ViewPeople;
 
 class ViewDistribution extends ApiResource
 {
@@ -11,24 +11,22 @@ class ViewDistribution extends ApiResource
     {
         $arr = [
             'id'       => $this->id,
-            'receiver' => $this->relationValidation('receiver',function(){
+            'receiver' => $this->relationValidation('receiver', function () {
                 return $this->receiver->toViewApi();
             }),
-            'sender' => $this->relationValidation('sender',function(){
+            'sender' => $this->relationValidation('sender', function () {
                 return $this->sender->toViewApi();
             }),
-            'transaction' => $this->relationValidation('transaction',function(){
+            'transaction' => $this->relationValidation('transaction', function () {
                 return $this->transaction->toViewApi();
             }),
             'flag' => $this->flag,
             'order_no' => $this->order_no,
             'distribution_no' => $this->distribution_no,
             'distributed_at' => $this->distributed_at,
-            'ordered_at' => $this->ordered_at 
+            'ordered_at' => $this->ordered_at
         ];
-        
+
         return $arr;
     }
-
 }
-

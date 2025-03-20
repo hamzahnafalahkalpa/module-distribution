@@ -1,20 +1,21 @@
 <?php
 
-namespace Zahzah\ModuleDistribution\Schemas;
+namespace Hanafalah\ModuleDistribution\Schemas;
 
-use Gii\ModuleItem\Contracts\CardStock;
+use Hanafalah\ModuleItem\Contracts\CardStock;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Zahzah\LaravelSupport\Supports\PackageManagement;
-use Zahzah\ModuleDistribution\Contracts\Distribution as ContractsDistribution;
-use Zahzah\ModuleDistribution\Enums\Distribution\Flag;
-use Zahzah\ModuleDistribution\Enums\Distribution\Status;
-use Zahzah\ModuleDistribution\Resources\Distribution\ShowDistribution;
-use Zahzah\ModuleDistribution\Resources\Distribution\ViewDistribution;
+use Hanafalah\LaravelSupport\Supports\PackageManagement;
+use Hanafalah\ModuleDistribution\Contracts\Distribution as ContractsDistribution;
+use Hanafalah\ModuleDistribution\Enums\Distribution\Flag;
+use Hanafalah\ModuleDistribution\Enums\Distribution\Status;
+use Hanafalah\ModuleDistribution\Resources\Distribution\ShowDistribution;
+use Hanafalah\ModuleDistribution\Resources\Distribution\ViewDistribution;
 
-class Distribution extends PackageManagement implements ContractsDistribution{
-    protected array $__guard   = []; 
+class Distribution extends PackageManagement implements ContractsDistribution
+{
+    protected array $__guard   = [];
     protected array $__add     = [];
     protected string $__entity = 'Distribution';
     public static $distribution_model;
@@ -25,9 +26,10 @@ class Distribution extends PackageManagement implements ContractsDistribution{
         'show' => ShowDistribution::class
     ];
 
-    public function prepareStoreDistribution(? array $attributes = null): Model{
+    public function prepareStoreDistribution(?array $attributes = null): Model
+    {
         $attributes ??= request()->all();
-        if (isset($attributes['id'])){
+        if (isset($attributes['id'])) {
             $distribution = $this->DistributionModel()->findOrFail($attributes['id']);
             $attributes['flag'] = $distribution->flag;
             $attributes['receiver_id'] = $distribution->receiver_id;
@@ -36,10 +38,10 @@ class Distribution extends PackageManagement implements ContractsDistribution{
             $attributes['sender_type'] = $distribution->sender_type;
             $attributes['author_receiver_id'] = $distribution->author_receiver_id;
             $attributes['author_receiver_type'] = $distribution->author_receiver_type;
-        }else{
+        } else {
             $distribution = $this->DistributionModel()->firstOrCreate([
                 'id' => $attributes['id'] ?? null
-            ],[            
+            ], [
                 'flag'                 => $attributes['flag'] ?? Flag::DIRECT_DISTRIBUTION->value,
                 'receiver_id'          => $attributes['receiver_id'],
                 'receiver_type'        => $attributes['receiver_type'],
@@ -50,7 +52,7 @@ class Distribution extends PackageManagement implements ContractsDistribution{
             ]);
         }
 
-        if (isset($attributes['card_stocks']) && count($attributes['card_stocks']) > 0){
+        if (isset($attributes['card_stocks']) && count($attributes['card_stocks']) > 0) {
             $transaction_id  = $distribution->transaction->getKey();
             $valid_direction = $distribution->flag == Flag::ORDER_DISTRIBUTION->value && $distribution->status == Status::DRAFT->value;
 
@@ -58,7 +60,7 @@ class Distribution extends PackageManagement implements ContractsDistribution{
                 $direction       = $this->MainMovementModel()::IN;
                 $warehouse_id    = $attributes['receiver_id'];
                 $warehouse_type  = $attributes['receiver_type'];
-            }else{
+            } else {
                 $direction       = $this->MainMovementModel()::OUT;
                 $warehouse_id    = $attributes['sender_id'];
                 $warehouse_type  = $attributes['sender_type'];
@@ -79,13 +81,14 @@ class Distribution extends PackageManagement implements ContractsDistribution{
         return static::$distribution_model = $distribution;
     }
 
-    public function prepareStoreDistributionItems(mixed $attributes = null): Model{
+    public function prepareStoreDistributionItems(mixed $attributes = null): Model
+    {
         $attributes ??= request()->all();
 
-        if (!isset($attributes['transaction_id'])){
-            if (!isset(static::$distribution_model)){
+        if (!isset($attributes['transaction_id'])) {
+            if (!isset(static::$distribution_model)) {
                 $distribution = static::$distribution_model;
-            }else{
+            } else {
                 $id = $attributes['distribution_id'] ?? null;
                 if (!isset($id)) throw new \Exception('No distribution id provided', 422);
                 $distribution = $this->DistributionModel()->find($id);
@@ -93,75 +96,87 @@ class Distribution extends PackageManagement implements ContractsDistribution{
             $attributes['transaction_id'] = $distribution->transaction->getKey();
         }
         $distribution_item = $this->schemaContract('card_stock')
-                                ->prepareStoreCardStock($attributes);
-        return static::$distribution_item_model = $distribution_item; 
+            ->prepareStoreCardStock($attributes);
+        return static::$distribution_item_model = $distribution_item;
     }
 
-    public function storeDistribution(): array{
+    public function storeDistribution(): array
+    {
         return $this->transaction(function () {
             return $this->showDistribution($this->prepareStoreDistribution());
         });
     }
 
-    public function getDistribution():? Model{
+    public function getDistribution(): ?Model
+    {
         return static::$distribution_model;
     }
 
-    public function showUsingRelation(): array{
+    public function showUsingRelation(): array
+    {
         return [
-            'receiver','sender',
-            'authorSender','authorReceiver',
-            'transaction', 'cardStocks' => function($query){
-                $query->with(['stockMovements' => function($query){
+            'receiver',
+            'sender',
+            'authorSender',
+            'authorReceiver',
+            'transaction',
+            'cardStocks' => function ($query) {
+                $query->with(['stockMovements' => function ($query) {
                     $query->with([
                         'itemStock',
-                        'childs' => function($query){
+                        'childs' => function ($query) {
                             $query->with([
                                 'itemStock',
                                 'batchMovements.batch'
                             ]);
-                        },'batchMovements.batch'
+                        },
+                        'batchMovements.batch'
                     ]);
                 }]);
             }
         ];
     }
 
-    public function prepareShowDistribution(? Model $model = null,? array $attributes = null): Model{
+    public function prepareShowDistribution(?Model $model = null, ?array $attributes = null): Model
+    {
         $attributes ??= request()->all();
 
         $model ??= $this->getDistribution();
-        if (!isset($model)){
+        if (!isset($model)) {
             $id = $attributes['id'] ?? null;
             if (!isset($id)) throw new \Exception('No distribution id provided', 422);
 
             $model = $this->distribution()->with($this->showUsingRelation())->findOrFail($id);
-        }else{
+        } else {
             $model->load($this->showUsingRelation());
         }
         return static::$distribution_model = $model;
     }
 
-    public function showDistribution(? Model $model = null): array{
-        return $this->transforming($this->__resources['show'],function() use ($model){
+    public function showDistribution(?Model $model = null): array
+    {
+        return $this->transforming($this->__resources['show'], function () use ($model) {
             return $this->prepareShowDistribution($model);
         });
     }
 
-    public function prepareViewDistributionPaginate(int $perPage = 50, array $columns = ['*'], string $pageName = 'page',? int $page = null,? int $total = null): LengthAwarePaginator{
+    public function prepareViewDistributionPaginate(int $perPage = 50, array $columns = ['*'], string $pageName = 'page', ?int $page = null, ?int $total = null): LengthAwarePaginator
+    {
         $paginate_options = compact('perPage', 'columns', 'pageName', 'page', 'total');
         return $this->distribution()->paginate(...$this->arrayValues($paginate_options))
-                    ->appends(request()->all());
+            ->appends(request()->all());
     }
 
-    public function viewDistributionPaginate(int $perPage = 50, array $columns = ['*'], string $pageName = 'page',? int $page = null,? int $total = null): array{
+    public function viewDistributionPaginate(int $perPage = 50, array $columns = ['*'], string $pageName = 'page', ?int $page = null, ?int $total = null): array
+    {
         $paginate_options = compact('perPage', 'columns', 'pageName', 'page', 'total');
-        return $this->transforming($this->__resources['view'],function() use ($paginate_options){
+        return $this->transforming($this->__resources['view'], function () use ($paginate_options) {
             return $this->prepareViewDistributionPaginate(...$this->arrayValues($paginate_options));
         });
     }
 
-    public function prepareReportDistribution(? array $attributes = null): Model{
+    public function prepareReportDistribution(?array $attributes = null): Model
+    {
         $attributes ??= request()->all();
         if (!isset($attributes['id'])) throw new \Exception('No id provided', 422);
 
@@ -173,7 +188,7 @@ class Distribution extends PackageManagement implements ContractsDistribution{
 
         $card_stocks = $distribution->cardStocks;
         //UPDATING STOCK
-        if (isset($card_stocks) && count($card_stocks) > 0){
+        if (isset($card_stocks) && count($card_stocks) > 0) {
             foreach ($card_stocks as $card_stock) {
                 $card_stock->reported_at = now();
                 $card_stock->save();
@@ -183,42 +198,46 @@ class Distribution extends PackageManagement implements ContractsDistribution{
         return $distribution;
     }
 
-    public function reportDistribution(): array{
-        return $this->transaction(function(){
+    public function reportDistribution(): array
+    {
+        return $this->transaction(function () {
             return $this->showDistribution($this->prepareReportDistribution());
         });
     }
 
-    public function prepareDeleteDistribution(? array $attributes = null): mixed{
+    public function prepareDeleteDistribution(?array $attributes = null): mixed
+    {
         $attributes ??= request()->all();
         $id = $attributes['id'] ?? null;
         if (!isset($id)) throw new \Exception('No distribution id provided', 422);
 
         $distribution = $this->DistributionModel()->findOrFail($id);
-        if ($distribution->flag == Flag::DIRECT_DISTRIBUTION->value){
+        if ($distribution->flag == Flag::DIRECT_DISTRIBUTION->value) {
             return $distribution->delete();
-        }else{
+        } else {
             $distribution->status = Status::CANCELED->value;
             $distribution->save();
             return $distribution;
         }
-    }    
+    }
 
-    public function deleteDistribution(): mixed{
-        return $this->transaction(function(){
+    public function deleteDistribution(): mixed
+    {
+        return $this->transaction(function () {
             return $this->prepareDeleteDistribution();
         });
     }
 
-    public function distribution(mixed $conditionals = null): Builder{
+    public function distribution(mixed $conditionals = null): Builder
+    {
         $this->booting();
         return $this->DistributionModel()->conditionals($conditionals)
-                    ->withParameters()->with(['transaction','receiver','sender'])
-                    ->where(function($query){
-                        $query->where(function($query){
-                            $query->where('flag',Flag::ORDER_DISTRIBUTION->value)
-                                  ->where('status','<>',Status::DRAFT->value);
-                        })->orWhere('flag',Flag::DIRECT_DISTRIBUTION->value);
-                    });
+            ->withParameters()->with(['transaction', 'receiver', 'sender'])
+            ->where(function ($query) {
+                $query->where(function ($query) {
+                    $query->where('flag', Flag::ORDER_DISTRIBUTION->value)
+                        ->where('status', '<>', Status::DRAFT->value);
+                })->orWhere('flag', Flag::DIRECT_DISTRIBUTION->value);
+            });
     }
 }

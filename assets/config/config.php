@@ -1,6 +1,6 @@
-<?php 
+<?php
 
-use Zahzah\ModuleDistribution\{
+use Hanafalah\ModuleDistribution\{
     Models as ModuleDistributionModels,
     Commands as ModuleDistributionCommand,
     Contracts

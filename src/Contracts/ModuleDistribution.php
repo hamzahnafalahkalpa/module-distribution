@@ -1,9 +1,7 @@
 <?php
 
-namespace Zahzah\ModuleDistribution\Contracts;
+namespace Hanafalah\ModuleDistribution\Contracts;
 
-use Zahzah\LaravelSupport\Contracts\DataManagement;
+use Hanafalah\LaravelSupport\Contracts\DataManagement;
 
-interface ModuleDistribution extends DataManagement 
-{
-}
+interface ModuleDistribution extends DataManagement {}

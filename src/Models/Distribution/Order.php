@@ -1,11 +1,12 @@
 <?php
 
-namespace Zahzah\ModuleDistribution\Models\Distribution;
+namespace Hanafalah\ModuleDistribution\Models\Distribution;
 
 class Order extends Distribution
 {
     protected $table = 'distributions';
-    public function getMorphClass(){
+    public function getMorphClass()
+    {
         return 'Distribution';
     }
 }
