@@ -7,18 +7,26 @@ use Hanafalah\ModuleDistribution\{
 };
 
 return [
-    'commands' => [
-        ModuleDistributionCommand\InstallMakeCommand::class
+    'namespace' => 'Hanafalah\\ModuleDistribution',
+    'app' => [
+        'contracts' => [
+            //ADD YOUR CONTRACTS HERE
+        ]
     ],
-    'contracts'                => [
-        'distribution'         => Contracts\Distribution::class,
-        'module_distribution'  => Contracts\ModuleDistribution::class,
-        'order'                => Contracts\Order::class
+    'libs' => [
+        'model' => 'Models',
+        'contract' => 'Contracts',
+        'schema' => 'Schemas',
+        'database' => 'Database',
+        'data' => 'Data',
+        'resource' => 'Resources',
+        'migration' => '../assets/database/migrations'
     ],
     'database'                 => [
         'models'               => [
-            'Order'            => ModuleDistributionModels\Distribution\Order::class,
-            'Distribution'     => ModuleDistributionModels\Distribution\Distribution::class
         ]
-    ]
+    ],
+    'commands' => [
+        ModuleDistributionCommand\InstallMakeCommand::class
+    ]    
 ];
