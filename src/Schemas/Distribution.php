@@ -86,8 +86,8 @@ class Distribution extends PackageManagement implements ContractsDistribution
         $attributes ??= request()->all();
 
         if (!isset($attributes['transaction_id'])) {
-            if (!isset(static::$distribution_model)) {
-                $distribution = static::$distribution_model;
+            if (!isset($this->distribution_model)) {
+                $distribution = $this->distribution_model;
             } else {
                 $id = $attributes['distribution_id'] ?? null;
                 if (!isset($id)) throw new \Exception('No distribution id provided', 422);
