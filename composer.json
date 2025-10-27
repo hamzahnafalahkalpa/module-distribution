@@ -11,13 +11,6 @@
             "email": "hamzahnafalah@gmail.com"
         }
     ],
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Hanafalah\\ModuleDistribution\\ModuleDistributionServiceProvider"
-            ]
-        }
-    },
     "require": {
         "hanafalah/module-item": "dev-main",
         "hanafalah/module-transaction": "dev-main",
